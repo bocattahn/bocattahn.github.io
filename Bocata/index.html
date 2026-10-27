@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Bocata — Menú y pedidos</title>
+  <meta name="description" content="Mira el menú de Bocata y haz tu pedido directo por WhatsApp.">
+  <meta property="og:title" content="Bocata — Menú y pedidos">
+  <meta property="og:description" content="Mira el menú y pide por WhatsApp 🥖">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="hero">
+    <div class="logo">🥖</div>
+    <h1 id="nombre">Bocata</h1>
+    <p id="slogan"></p>
+    <nav class="redes" id="redes"></nav>
+  </header>
+
+  <nav class="tabs" id="tabs"></nav>
+
+  <main id="menu"></main>
+
+  <button class="cart-btn" id="cartBtn" hidden>
+    <span>🛒 Ver pedido</span>
+    <span><b id="cartCount">0</b> · <b id="cartTotal">L 0</b></span>
+  </button>
+
+  <div class="sheet-backdrop" id="backdrop" hidden></div>
+  <aside class="sheet" id="sheet" aria-hidden="true">
+    <div class="sheet-head">
+      <h2>Tu pedido</h2>
+      <button class="close" id="closeSheet" aria-label="Cerrar">✕</button>
+    </div>
+    <ul class="cart-list" id="cartList"></ul>
+    <form id="orderForm">
+      <label>Nombre<input name="nombre" required placeholder="¿A nombre de quién?"></label>
+      <label>Entrega
+        <select name="entrega" id="entrega">
+          <option value="Recoger en local">Recoger en local</option>
+          <option value="A domicilio">A domicilio</option>
+        </select>
+      </label>
+      <label id="dirWrap" hidden>Dirección<input name="direccion" placeholder="Colonia, calle, referencia"></label>
+      <label>Notas<textarea name="notas" rows="2" placeholder="Sin cebolla, salsa extra…"></textarea></label>
+      <div class="total-row"><span>Total</span><b id="sheetTotal">L 0</b></div>
+      <button type="submit" class="wa-btn">Enviar pedido por WhatsApp</button>
+    </form>
+  </aside>
+
+  <footer>Hecho con cariño · <span id="year"></span></footer>
+
+  <script src="menu.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
