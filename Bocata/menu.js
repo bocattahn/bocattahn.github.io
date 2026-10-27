@@ -40,7 +40,7 @@ const MENU = [
         desc: "Una galleta suavecita envuelta en vendas dulces y con dos ojitos curiosos. ¡Esta momia no asusta, enamora!" },
       { id: "frankie", nombre: "Frankie", opciones: COOKIE, img: "",
         desc: "Verde, dulce y cosida con mucho amor. Este pequeño monstruo está vivo… ¡y listo para que te lo comas!" },
-      // OJO: precio y descripción del S'more pendientes de confirmar (no venían en el PDF)
+      // Precio confirmado (igual que las cookies). La descripción no venía en el PDF.
       { id: "midnight-smore", nombre: "Midnight S'more", opciones: COOKIE, img: "img/midnight-smore.jpg",
         desc: "Galleta con chispas de chocolate, malvaviscos tostados y un cuadrito de chocolate, bañada en drizzle blanco. ¡El antojo de medianoche!" },
     ],
