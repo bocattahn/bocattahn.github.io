@@ -10,7 +10,7 @@ const NEGOCIO = {
   slogan: "Postres hechos con amor 🍪",
   moneda: "L",
   // Enlaces de redes (deja "" para ocultar el botón)
-  instagram: "https://instagram.com/boccata.hn",
+  instagram: "https://instagram.com/bocatta.hn",
   facebook: "",
   tiktok: "",
 };
