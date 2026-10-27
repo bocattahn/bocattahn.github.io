@@ -3,50 +3,68 @@
 // ==========================================================
 
 // Número de WhatsApp que recibe los pedidos (código de país + número, sin + ni espacios).
-// Por ahora: +504 9748-3817. Cámbialo por el de tu primita cuando esté listo.
-const WHATSAPP_NUMBER = "50497483817";
+const WHATSAPP_NUMBER = "50495980293"; // +504 9598-0293
 
 const NEGOCIO = {
   nombre: "Bocatta",
-  slogan: "Bocatas hechos al momento, con amor 🥖",
+  slogan: "Postres hechos con amor 🍪",
   moneda: "L",
-  // Pon aquí los enlaces reales de sus redes (deja "" para ocultar el botón)
-  instagram: "https://instagram.com/",
-  facebook: "https://facebook.com/",
-  tiktok: "https://tiktok.com/",
+  // Enlaces de redes (deja "" para ocultar el botón)
+  instagram: "https://instagram.com/boccata.hn",
+  facebook: "",
+  tiktok: "",
 };
 
-// Menú: para cambiar una foto, pon el archivo en la carpeta img/ y usa "img/nombre.jpg"
+// Precios por paquete. Cada producto puede tener sus propias opciones.
+const COOKIE = [{ nombre: "Media docena", precio: 300 }, { nombre: "Docena", precio: 550 }];
+const BROWNIE = [{ nombre: "Media docena", precio: 290 }, { nombre: "Docena", precio: 580 }];
+const CRISPY = [{ nombre: "Media docena", precio: 300 }, { nombre: "Docena", precio: 600 }];
+
+// Menú. "temporada" agrupa las secciones bajo un aviso de temporada.
+// Para cambiar una foto, pon el archivo en la carpeta img/ y usa "img/nombre.jpg".
+// Sin foto: deja img: "" y se muestra un dibujito.
+const TEMPORADA = "Halloween 🎃";
+
 const MENU = [
   {
-    categoria: "Bocatas",
+    categoria: "Cookies",
+    temporada: true,
     items: [
-      { id: "clasico", nombre: "Bocata Clásico", desc: "Jamón, queso, lechuga, tomate y mayonesa de la casa.", precio: 95,
-        img: "https://images.unsplash.com/photo-1528735602780-2552fd46c7af?w=600&q=70" },
-      { id: "pollo", nombre: "Bocata de Pollo", desc: "Pollo a la plancha, aguacate, queso y salsa chipotle.", precio: 120,
-        img: "https://images.unsplash.com/photo-1553909489-cd47e0907980?w=600&q=70" },
-      { id: "cubano", nombre: "Bocata Cubano", desc: "Cerdo, jamón, queso suizo, pepinillos y mostaza.", precio: 135,
-        img: "https://images.unsplash.com/photo-1509722747041-616f39b57569?w=600&q=70" },
-      { id: "veggie", nombre: "Bocata Veggie", desc: "Vegetales asados, queso fresco y pesto.", precio: 105,
-        img: "https://images.unsplash.com/photo-1540713434306-58505cf1b6fc?w=600&q=70" },
+      { id: "cookie-monster", nombre: "Cookie Monster", opciones: COOKIE, img: "img/cookie-monster.jpg",
+        desc: "Azul, cargada y fuera de control: trozos de galleta, chispas de chocolate y galleta triturada. ¡Una galleta que come galletas!" },
+      { id: "red-web", nombre: "Red Web", opciones: COOKIE, img: "img/red-web.jpg",
+        desc: "Roja, dulce y atrapada en una telaraña, con un ojito tenebroso que te observa. Lo spooky nunca supo tan rico." },
+      { id: "boo-cookie", nombre: "Boo Cookie", opciones: COOKIE, img: "img/boo-cookie.jpg",
+        desc: "Una galleta suavecita embrujada por un fantasmita de malvavisco y su telaraña. Advertencia: es terroríficamente deliciosa." },
+      { id: "mummy-cookie", nombre: "Mummy Cookie", opciones: COOKIE, img: "img/mummy-cookie.jpg",
+        desc: "Una galleta suavecita envuelta en vendas dulces y con dos ojitos curiosos. ¡Esta momia no asusta, enamora!" },
+      { id: "frankie", nombre: "Frankie", opciones: COOKIE, img: "",
+        desc: "Verde, dulce y cosida con mucho amor. Este pequeño monstruo está vivo… ¡y listo para que te lo comas!" },
     ],
   },
   {
-    categoria: "Acompañantes",
+    categoria: "Brownies",
+    temporada: true,
     items: [
-      { id: "papas", nombre: "Papas Fritas", desc: "Crujientes, con sal y salsa a elegir.", precio: 45,
-        img: "https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=600&q=70" },
-      { id: "aros", nombre: "Aros de Cebolla", desc: "Empanizados y dorados.", precio: 55,
-        img: "https://images.unsplash.com/photo-1639024471283-03518883512d?w=600&q=70" },
+      { id: "mummy-brownie", nombre: "Mummy Brownie", opciones: BROWNIE, img: "img/mummy-brownie.jpg",
+        desc: "Un brownie bien fudgy envuelto en vendas dulces y cremosas. ¡Desenvuélvelo bajo tu propio riesgo!" },
+      { id: "eye-mallow-brownie", nombre: "Eye-Mallow Brownie", opciones: BROWNIE, img: "img/mallow-monster-brownie.jpg",
+        desc: "Malvavisco derretido, brownie intenso y demasiados ojos. Tranquilo, solo te miran mientras comes." },
     ],
   },
   {
-    categoria: "Bebidas",
+    categoria: "Rice Crispy",
+    temporada: true,
     items: [
-      { id: "limonada", nombre: "Limonada Natural", desc: "Recién hecha, con hierbabuena.", precio: 35,
-        img: "https://images.unsplash.com/photo-1621263764928-df1444c5e859?w=600&q=70" },
-      { id: "refresco", nombre: "Refresco", desc: "Lata 355 ml.", precio: 25,
-        img: "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=600&q=70" },
+      { id: "three-eyed-crispy", nombre: "Three-Eyed Crispy", opciones: CRISPY, img: "img/three-eyed-crispy.jpg",
+        desc: "Rice crispy con drizzle naranja, confeti de Halloween y tres ojos que no te pierden de vista. ¡Crujiente y travieso!" },
+      { id: "mummy-crispy", nombre: "Mummy Crispy", opciones: CRISPY, img: "img/mummy-crispy.jpg",
+        desc: "Crujiente, suavecito y bien envuelto para Halloween. ¡Momia pequeña, crunch gigante!" },
+      { id: "zombie-sprinkles", nombre: "Zombie Sprinkles", opciones: CRISPY, img: "img/zombie-crispy.jpg",
+        desc: "Un rice crispy zombie cubierto de chispitas moradas, naranjas y negras. ¡Revive de la tumba con todo el sabor!" },
+      { id: "frankie-crispy", nombre: "Frankie Crispy", opciones: CRISPY, img: "img/franki-crispy.jpg",
+        desc: "El primo crujiente de Frankie: verde, con pelito de chispitas negras y una sonrisa monstruosa." },
     ],
   },
+  // Lo de siempre: agrega aquí sus categorías (sin "temporada: true") cuando tengan precios.
 ];

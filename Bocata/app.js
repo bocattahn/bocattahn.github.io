@@ -1,7 +1,12 @@
 const $ = (id) => document.getElementById(id);
 const dinero = (n) => `${NEGOCIO.moneda} ${n.toFixed(2).replace(/\.00$/, "")}`;
-const carrito = {}; // id -> cantidad
+const carrito = {}; // "id|opción" -> cantidad
 const productos = Object.fromEntries(MENU.flatMap((c) => c.items).map((p) => [p.id, p]));
+const linea = (key) => {
+  const [id, i] = key.split("|");
+  const p = productos[id], o = p.opciones[i];
+  return { p, o, nombre: `${p.nombre} (${o.nombre})` };
+};
 
 // ---------- Encabezado y redes ----------
 $("nombre").textContent = NEGOCIO.nombre;
@@ -19,7 +24,20 @@ $("year").textContent = new Date().getFullYear();
 // ---------- Menú ----------
 function slug(s) { return s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/\s+/g, "-"); }
 
+let grupo = null;
 MENU.forEach((cat, i) => {
+  // Encabezado del grupo: temporada o lo de siempre
+  const g = cat.temporada ? "temporada" : "siempre";
+  if (g !== grupo) {
+    grupo = g;
+    const h = document.createElement("div");
+    h.className = `grupo ${g}`;
+    h.innerHTML = g === "temporada"
+      ? `<span class="badge">De temporada</span><h2>${TEMPORADA}</h2>`
+      : `<span class="badge">Lo de siempre</span>`;
+    $("menu").append(h);
+  }
+
   const tab = document.createElement("a");
   tab.href = `#${slug(cat.categoria)}`;
   tab.textContent = cat.categoria;
@@ -32,16 +50,19 @@ MENU.forEach((cat, i) => {
   cat.items.forEach((p) => {
     const card = document.createElement("article");
     card.className = "card";
+    const foto = p.img
+      ? `<img src="${p.img}" alt="${p.nombre}" loading="lazy" onerror="this.replaceWith(document.createTextNode('🍪'))">`
+      : "🍪";
     card.innerHTML = `
-      <div class="foto"><img src="${p.img}" alt="${p.nombre}" loading="lazy"
-           onerror="this.replaceWith(document.createTextNode('🥪'))"></div>
+      <div class="foto">${foto}</div>
       <div class="body">
         <h3>${p.nombre}</h3>
         <p>${p.desc}</p>
-        <div class="row">
-          <span class="precio">${dinero(p.precio)}</span>
-          <span class="ctrl" data-id="${p.id}"></span>
-        </div>
+        ${p.opciones.map((o, idx) => `
+          <div class="row">
+            <span><span class="opcion">${o.nombre}</span> <span class="precio">${dinero(o.precio)}</span></span>
+            <span class="ctrl" data-key="${p.id}|${idx}"></span>
+          </div>`).join("")}
       </div>`;
     sec.querySelector(".grid").append(card);
   });
@@ -59,37 +80,39 @@ const obs = new IntersectionObserver((entries) => {
 document.querySelectorAll("main section").forEach((s) => obs.observe(s));
 
 // ---------- Carrito ----------
-function cambiar(id, delta) {
-  carrito[id] = Math.max(0, (carrito[id] || 0) + delta);
-  if (!carrito[id]) delete carrito[id];
+function cambiar(key, delta) {
+  carrito[key] = Math.max(0, (carrito[key] || 0) + delta);
+  if (!carrito[key]) delete carrito[key];
   render();
 }
 
-function controles(id) {
-  const n = carrito[id] || 0;
+function controles(key) {
+  const n = carrito[key] || 0;
   return n
-    ? `<span class="qty"><button data-id="${id}" data-d="-1" aria-label="Quitar">−</button><b>${n}</b><button data-id="${id}" data-d="1" aria-label="Agregar">+</button></span>`
-    : `<button class="add" data-id="${id}" data-d="1">Agregar</button>`;
+    ? `<span class="qty"><button data-key="${key}" data-d="-1" aria-label="Quitar">−</button><b>${n}</b><button data-key="${key}" data-d="1" aria-label="Agregar">+</button></span>`
+    : `<button class="add" data-key="${key}" data-d="1">Agregar</button>`;
 }
 
-function total() { return Object.entries(carrito).reduce((s, [id, n]) => s + productos[id].precio * n, 0); }
+function total() { return Object.entries(carrito).reduce((s, [k, n]) => s + linea(k).o.precio * n, 0); }
 
 function render() {
-  document.querySelectorAll(".ctrl").forEach((el) => (el.innerHTML = controles(el.dataset.id)));
+  document.querySelectorAll(".ctrl").forEach((el) => (el.innerHTML = controles(el.dataset.key)));
   const piezas = Object.values(carrito).reduce((a, b) => a + b, 0);
   $("cartBtn").hidden = piezas === 0;
   $("cartCount").textContent = `${piezas} ${piezas === 1 ? "producto" : "productos"}`;
   $("cartTotal").textContent = dinero(total());
   $("sheetTotal").textContent = dinero(total());
-  $("cartList").innerHTML = Object.entries(carrito).map(([id, n]) => `
-    <li><span class="nm">${productos[id].nombre}<small>${dinero(productos[id].precio)} c/u</small></span>
-      ${controles(id)}<b>${dinero(productos[id].precio * n)}</b></li>`).join("");
+  $("cartList").innerHTML = Object.entries(carrito).map(([k, n]) => {
+    const { p, o } = linea(k);
+    return `<li><span class="nm">${p.nombre}<small>${o.nombre} · ${dinero(o.precio)}</small></span>
+      ${controles(k)}<b>${dinero(o.precio * n)}</b></li>`;
+  }).join("");
   if (piezas === 0) abrir(false);
 }
 
 document.addEventListener("click", (e) => {
-  const b = e.target.closest("button[data-id]");
-  if (b) cambiar(b.dataset.id, Number(b.dataset.d));
+  const b = e.target.closest("button[data-key]");
+  if (b) cambiar(b.dataset.key, Number(b.dataset.d));
 });
 
 function abrir(si) {
@@ -111,8 +134,8 @@ $("entrega").onchange = (e) => {
 $("orderForm").onsubmit = (e) => {
   e.preventDefault();
   const f = new FormData(e.target);
-  const lineas = Object.entries(carrito).map(([id, n]) =>
-    `• ${n} x ${productos[id].nombre} — ${dinero(productos[id].precio * n)}`);
+  const lineas = Object.entries(carrito).map(([k, n]) =>
+    `• ${n} x ${linea(k).nombre} — ${dinero(linea(k).o.precio * n)}`);
   const msg = [
     `¡Hola ${NEGOCIO.nombre}! 👋 Quiero hacer este pedido:`,
     "",
