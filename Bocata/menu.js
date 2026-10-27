@@ -38,7 +38,8 @@ const MENU = [
         desc: "Una galleta suavecita embrujada por un fantasmita de malvavisco y su telaraña. Advertencia: es terroríficamente deliciosa." },
       { id: "mummy-cookie", nombre: "Mummy Cookie", opciones: COOKIE, img: "img/mummy-cookie.jpg",
         desc: "Una galleta suavecita envuelta en vendas dulces y con dos ojitos curiosos. ¡Esta momia no asusta, enamora!" },
-      { id: "frankie", nombre: "Frankie", opciones: COOKIE, img: "",
+      // Foto sacada del PDF (más pequeña); "ajuste: contain" la muestra completa sin recortar
+      { id: "frankie", nombre: "Frankie", opciones: COOKIE, img: "img/frankie-cookie.png", ajuste: "contain",
         desc: "Verde, dulce y cosida con mucho amor. Este pequeño monstruo está vivo… ¡y listo para que te lo comas!" },
       // Precio confirmado (igual que las cookies). La descripción no venía en el PDF.
       { id: "midnight-smore", nombre: "Midnight S'more", opciones: COOKIE, img: "img/midnight-smore.jpg",

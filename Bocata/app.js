@@ -51,7 +51,7 @@ MENU.forEach((cat, i) => {
     const card = document.createElement("article");
     card.className = "card";
     const imgTag = (src) =>
-      `<img src="${src}" alt="${p.nombre}" loading="lazy" onerror="this.replaceWith(document.createTextNode('🍪'))">`;
+      `<img src="${src}" alt="${p.nombre}" loading="lazy"${p.ajuste ? ` class="${p.ajuste}"` : ""} onerror="this.replaceWith(document.createTextNode('🍪'))">`;
     const foto = Array.isArray(p.img)
       ? `<div class="mosaico">${p.img.map(imgTag).join("")}</div>`
       : p.img ? imgTag(p.img) : "🍪";
