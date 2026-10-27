@@ -7,7 +7,7 @@
 const WHATSAPP_NUMBER = "50497483817";
 
 const NEGOCIO = {
-  nombre: "Bocata",
+  nombre: "Bocatta",
   slogan: "Bocatas hechos al momento, con amor 🥖",
   moneda: "L",
   // Pon aquí los enlaces reales de sus redes (deja "" para ocultar el botón)
