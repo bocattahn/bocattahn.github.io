@@ -78,7 +78,7 @@ section h2 { font-size: 1.5rem; margin: 24px 0 12px; }
 .precio { font-weight: 700; font-size: 1.1rem; color: var(--brand-dark); white-space: nowrap; }
 .opcion { font-size: .9rem; color: var(--muted); }
 .card.ancho { grid-column: span 2; }
-.card.ancho .foto { aspect-ratio: 4/3; background: #fff; }
+.card.ancho .foto { aspect-ratio: 1138/826; background: #fff; }
 @media (max-width: 600px) { .card.ancho { grid-column: auto; } }
 
 .grupo { margin: 28px 0 0; padding: 16px 18px; border-radius: var(--radius); background: var(--sky-soft); }

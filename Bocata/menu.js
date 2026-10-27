@@ -74,8 +74,8 @@ const MENU = [
     temporada: true,
     items: [
       // formato "ancho": tarjeta más ancha con foto horizontal
-      { id: "box", nombre: "Box Halloween", formato: "ancho", img: "img/boxes.jpg",
-        opciones: [{ nombre: "Box Surtida · 25 piezas", precio: 1100 }, { nombre: "Box de 50 · 50 piezas", precio: 2150 }],
+      { id: "box", nombre: "Boxes", formato: "ancho", img: "img/boxes-v2.jpg",
+        opciones: [{ nombre: "Box Surtida (25 piezas)", precio: 1100 }, { nombre: "Box de 50 (50 piezas)", precio: 2150 }],
         desc: "Una mezcla de galletas, brownies y rice crispy. Para compartir… o para ti solito." },
     ],
   },
