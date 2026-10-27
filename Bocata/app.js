@@ -9,7 +9,6 @@ const linea = (key) => {
 };
 
 // ---------- Encabezado y redes ----------
-$("nombre").textContent = NEGOCIO.nombre;
 $("slogan").textContent = NEGOCIO.slogan;
 $("year").textContent = new Date().getFullYear();
 [["Instagram", NEGOCIO.instagram], ["Facebook", NEGOCIO.facebook], ["TikTok", NEGOCIO.tiktok],
