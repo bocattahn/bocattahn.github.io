@@ -11,6 +11,7 @@
 }
 
 * { box-sizing: border-box; }
+[hidden] { display: none !important; }
 body {
   margin: 0;
   background: var(--bg);
@@ -64,8 +65,8 @@ section h2 { font-size: 1.5rem; margin: 24px 0 12px; }
   box-shadow: 0 4px 14px rgba(120, 70, 20, .08);
   display: flex; flex-direction: column;
 }
-.card .foto { aspect-ratio: 4/3; background: #fde3c8; display: grid; place-items: center; font-size: 56px; }
-.card img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.card .foto { position: relative; aspect-ratio: 4/3; background: #fde3c8; display: grid; place-items: center; font-size: 56px; }
+.card img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
 .card .body { padding: 14px 16px 16px; display: flex; flex-direction: column; gap: 6px; flex: 1; }
 .card h3 { font-size: 1.15rem; }
 .card p { margin: 0; color: var(--muted); font-size: .92rem; flex: 1; }
