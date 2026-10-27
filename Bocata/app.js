@@ -1,5 +1,5 @@
 const $ = (id) => document.getElementById(id);
-const dinero = (n) => `${NEGOCIO.moneda} ${n.toFixed(2).replace(/\.00$/, "")}`;
+const dinero = (n) => `${NEGOCIO.moneda} ${n.toLocaleString("en-US", { maximumFractionDigits: 2 })}`;
 const carrito = {}; // "id|opción" -> cantidad
 const productos = Object.fromEntries(MENU.flatMap((c) => c.items).map((p) => [p.id, p]));
 const linea = (key) => {
