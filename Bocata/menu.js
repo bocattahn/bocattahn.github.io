@@ -10,7 +10,7 @@ const NEGOCIO = {
   slogan: "Postres hechos con amor 🍪",
   moneda: "L",
   // Enlaces de redes (deja "" para ocultar el botón)
-  instagram: "https://instagram.com/bocatta.hn",
+  instagram: "https://www.instagram.com/bocatta.hn/",
   facebook: "",
   tiktok: "",
 };
@@ -40,6 +40,9 @@ const MENU = [
         desc: "Una galleta suavecita envuelta en vendas dulces y con dos ojitos curiosos. ¡Esta momia no asusta, enamora!" },
       { id: "frankie", nombre: "Frankie", opciones: COOKIE, img: "",
         desc: "Verde, dulce y cosida con mucho amor. Este pequeño monstruo está vivo… ¡y listo para que te lo comas!" },
+      // OJO: precio y descripción del S'more pendientes de confirmar (no venían en el PDF)
+      { id: "midnight-smore", nombre: "Midnight S'more", opciones: COOKIE, img: "img/midnight-smore.jpg",
+        desc: "Galleta con chispas de chocolate, malvaviscos tostados y un cuadrito de chocolate, bañada en drizzle blanco. ¡El antojo de medianoche!" },
     ],
   },
   {
@@ -48,7 +51,7 @@ const MENU = [
     items: [
       { id: "mummy-brownie", nombre: "Mummy Brownie", opciones: BROWNIE, img: "img/mummy-brownie.jpg",
         desc: "Un brownie bien fudgy envuelto en vendas dulces y cremosas. ¡Desenvuélvelo bajo tu propio riesgo!" },
-      { id: "eye-mallow-brownie", nombre: "Eye-Mallow Brownie", opciones: BROWNIE, img: "img/mallow-monster-brownie.jpg",
+      { id: "mallow-monster-brownie", nombre: "Mallow Monster Brownie", opciones: BROWNIE, img: "img/mallow-monster-brownie.jpg",
         desc: "Malvavisco derretido, brownie intenso y demasiados ojos. Tranquilo, solo te miran mientras comes." },
     ],
   },
@@ -64,6 +67,19 @@ const MENU = [
         desc: "Un rice crispy zombie cubierto de chispitas moradas, naranjas y negras. ¡Revive de la tumba con todo el sabor!" },
       { id: "frankie-crispy", nombre: "Frankie Crispy", opciones: CRISPY, img: "img/franki-crispy.jpg",
         desc: "El primo crujiente de Frankie: verde, con pelito de chispitas negras y una sonrisa monstruosa." },
+    ],
+  },
+  {
+    categoria: "Boxes",
+    temporada: true,
+    items: [
+      // img puede ser una lista de fotos: se muestran como mosaico
+      { id: "box-surtida", nombre: "Box Surtida", opciones: [{ nombre: "25 piezas", precio: 1100 }],
+        img: ["img/cookie-monster.jpg", "img/mummy-brownie.jpg", "img/three-eyed-crispy.jpg", "img/red-web.jpg"],
+        desc: "Una mezcla de galletas, brownies y rice crispy." },
+      { id: "box-50", nombre: "Box de 50", opciones: [{ nombre: "50 piezas", precio: 2150 }],
+        img: ["img/boo-cookie.jpg", "img/mallow-monster-brownie.jpg", "img/zombie-crispy.jpg", "img/mummy-cookie.jpg"],
+        desc: "Para compartir… o para ti solito." },
     ],
   },
   // Lo de siempre: agrega aquí sus categorías (sin "temporada: true") cuando tengan precios.

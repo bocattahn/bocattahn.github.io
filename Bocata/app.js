@@ -50,9 +50,11 @@ MENU.forEach((cat, i) => {
   cat.items.forEach((p) => {
     const card = document.createElement("article");
     card.className = "card";
-    const foto = p.img
-      ? `<img src="${p.img}" alt="${p.nombre}" loading="lazy" onerror="this.replaceWith(document.createTextNode('🍪'))">`
-      : "🍪";
+    const imgTag = (src) =>
+      `<img src="${src}" alt="${p.nombre}" loading="lazy" onerror="this.replaceWith(document.createTextNode('🍪'))">`;
+    const foto = Array.isArray(p.img)
+      ? `<div class="mosaico">${p.img.map(imgTag).join("")}</div>`
+      : p.img ? imgTag(p.img) : "🍪";
     card.innerHTML = `
       <div class="foto">${foto}</div>
       <div class="body">
@@ -135,9 +137,10 @@ $("orderForm").onsubmit = (e) => {
   e.preventDefault();
   const f = new FormData(e.target);
   const lineas = Object.entries(carrito).map(([k, n]) =>
-    `• ${n} x ${linea(k).nombre} — ${dinero(linea(k).o.precio * n)}`);
+    `- ${n} x ${linea(k).nombre} — ${dinero(linea(k).o.precio * n)}`);
   const msg = [
-    `¡Hola ${NEGOCIO.nombre}! 👋 Quiero hacer este pedido:`,
+    // Sin emojis: WhatsApp en PC a veces los muestra como un cuadro con "?"
+    `¡Hola ${NEGOCIO.nombre}! Quiero hacer este pedido:`,
     "",
     ...lineas,
     "",
