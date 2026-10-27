@@ -49,12 +49,10 @@ MENU.forEach((cat, i) => {
   sec.innerHTML = `<h2>${cat.categoria}</h2><div class="grid"></div>`;
   cat.items.forEach((p) => {
     const card = document.createElement("article");
-    card.className = "card";
-    const imgTag = (src) =>
-      `<img src="${src}" alt="${p.nombre}" loading="lazy"${p.ajuste ? ` class="${p.ajuste}"` : ""} onerror="this.replaceWith(document.createTextNode('🍪'))">`;
-    const foto = Array.isArray(p.img)
-      ? `<div class="mosaico">${p.img.map(imgTag).join("")}</div>`
-      : p.img ? imgTag(p.img) : "🍪";
+    card.className = p.formato ? `card ${p.formato}` : "card";
+    const foto = p.img
+      ? `<img src="${p.img}" alt="${p.nombre}" loading="lazy" onerror="this.replaceWith(document.createTextNode('🍪'))">`
+      : "🍪";
     card.innerHTML = `
       <div class="foto">${foto}</div>
       <div class="body">

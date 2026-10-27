@@ -77,9 +77,9 @@ section h2 { font-size: 1.5rem; margin: 24px 0 12px; }
 .card .row { display: flex; align-items: center; justify-content: space-between; margin-top: 8px; }
 .precio { font-weight: 700; font-size: 1.1rem; color: var(--brand-dark); }
 .opcion { font-size: .9rem; color: var(--muted); }
-.card img.contain { object-fit: contain; padding: 12%; background: #fff; }
-.mosaico { position: absolute; inset: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 2px; }
-.mosaico img { position: static; }
+.card.ancho { grid-column: span 2; }
+.card.ancho .foto { aspect-ratio: 4/3; background: #fff; }
+@media (max-width: 600px) { .card.ancho { grid-column: auto; } }
 
 .grupo { margin: 28px 0 0; padding: 16px 18px; border-radius: var(--radius); background: var(--sky-soft); }
 .grupo h2 { margin: 6px 0 0; font-size: 1.6rem; color: var(--brand); }

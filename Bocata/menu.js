@@ -73,13 +73,10 @@ const MENU = [
     categoria: "Boxes",
     temporada: true,
     items: [
-      // img puede ser una lista de fotos: se muestran como mosaico
-      { id: "box-surtida", nombre: "Box Surtida", opciones: [{ nombre: "25 piezas", precio: 1100 }],
-        img: ["img/cookie-monster.jpg", "img/mummy-brownie.jpg", "img/three-eyed-crispy.jpg", "img/red-web.jpg"],
-        desc: "Una mezcla de galletas, brownies y rice crispy." },
-      { id: "box-50", nombre: "Box de 50", opciones: [{ nombre: "50 piezas", precio: 2150 }],
-        img: ["img/boo-cookie.jpg", "img/mallow-monster-brownie.jpg", "img/zombie-crispy.jpg", "img/mummy-cookie.jpg"],
-        desc: "Para compartir… o para ti solito." },
+      // formato "ancho": tarjeta más ancha con foto horizontal
+      { id: "box", nombre: "Box Halloween", formato: "ancho", img: "img/boxes.jpg",
+        opciones: [{ nombre: "Box Surtida · 25 piezas", precio: 1100 }, { nombre: "Box de 50 · 50 piezas", precio: 2150 }],
+        desc: "Una mezcla de galletas, brownies y rice crispy. Para compartir… o para ti solito." },
     ],
   },
   // Lo de siempre: agrega aquí sus categorías (sin "temporada: true") cuando tengan precios.
