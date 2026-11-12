@@ -7,8 +7,8 @@
 
 window.SUPABASE = {
   // "Project URL" de Supabase (empieza con https://)
-  URL: "",
+  URL: "https://sqbkykaaebpghnotcfnl.supabase.co",
   // "Publishable key" (o "anon key"). Es pública por diseño: sí se puede poner aquí.
   // NUNCA pongas la "secret" / "service_role".
-  KEY: "",
+  KEY: "sb_publishable_qJaqWvzpGAYvLxlur2tNfQ_DjMSf1XR",
 };
