@@ -1,7 +1,8 @@
 const $ = (id) => document.getElementById(id);
-const dinero = (n) => `${NEGOCIO.moneda} ${n.toLocaleString("en-US", { maximumFractionDigits: 2 })}`;
+const dinero = (n) => `${NEGOCIO.moneda} ${Number(n).toLocaleString("en-US", { maximumFractionDigits: 2 })}`;
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const carrito = {}; // "id|opción" -> cantidad
-const productos = Object.fromEntries(MENU.flatMap((c) => c.items).map((p) => [p.id, p]));
+let productos = {};  // id -> producto
 const linea = (key) => {
   const [id, i] = key.split("|");
   const p = productos[id], o = p.opciones[i];
@@ -20,63 +21,98 @@ $("year").textContent = new Date().getFullYear();
     $("redes").append(a);
   });
 
+// ---------- Datos: Supabase (lo que edita Ana) o el menú fijo de menu.js ----------
+async function cargarMenu() {
+  const S = window.SUPABASE || {};
+  if (!S.URL || !S.KEY || !window.supabase) return { menu: MENU, temporada: TEMPORADA };
+  try {
+    const db = supabase.createClient(S.URL, S.KEY);
+    const [{ data: filas, error }, { data: ajustes }] = await Promise.all([
+      db.from("productos").select("*").order("orden").order("id"),
+      db.from("ajustes").select("temporada").eq("id", 1).maybeSingle(),
+    ]);
+    if (error) throw error;
+    // Agrupa por categoría: primero las de temporada, en el orden en que Ana las acomodó
+    const cats = new Map();
+    filas
+      .slice()
+      .sort((a, b) => (b.temporada - a.temporada) || (a.orden - b.orden))
+      .forEach((f) => {
+        const clave = `${f.temporada ? 1 : 0}|${f.categoria || "Otros"}`;
+        if (!cats.has(clave)) cats.set(clave, { categoria: f.categoria || "Otros", temporada: f.temporada, items: [] });
+        cats.get(clave).items.push({
+          id: String(f.id), nombre: f.nombre, desc: f.descripcion, opciones: f.opciones || [],
+          img: f.foto_url || "", formato: f.ancho ? "ancho" : "", disponible: f.disponible,
+        });
+      });
+    return { menu: [...cats.values()], temporada: ajustes?.temporada || TEMPORADA };
+  } catch (e) {
+    console.error("No se pudo leer Supabase, uso el menú fijo", e);
+    return { menu: MENU, temporada: TEMPORADA };
+  }
+}
+
 // ---------- Menú ----------
 function slug(s) { return s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/\s+/g, "-"); }
 
-let grupo = null;
-MENU.forEach((cat, i) => {
-  // Encabezado del grupo: temporada o lo de siempre
-  const g = cat.temporada ? "temporada" : "siempre";
-  if (g !== grupo) {
-    grupo = g;
-    const h = document.createElement("div");
-    h.className = `grupo ${g}`;
-    h.innerHTML = g === "temporada"
-      ? `<span class="badge">De temporada</span><h2>${TEMPORADA}</h2>`
-      : `<span class="badge">Lo de siempre</span>`;
-    $("menu").append(h);
-  }
+function pintarMenu(menu, temporada) {
+  productos = Object.fromEntries(menu.flatMap((c) => c.items).map((p) => [p.id, p]));
+  let grupo = null;
+  menu.forEach((cat, i) => {
+    // Encabezado del grupo: temporada o lo de siempre
+    const g = cat.temporada ? "temporada" : "siempre";
+    if (g !== grupo) {
+      grupo = g;
+      const h = document.createElement("div");
+      h.className = `grupo ${g}`;
+      h.innerHTML = g === "temporada"
+        ? `<span class="badge">De temporada</span><h2>${esc(temporada)}</h2>`
+        : `<span class="badge">Lo de siempre</span>`;
+      $("menu").append(h);
+    }
 
-  const tab = document.createElement("a");
-  tab.href = `#${slug(cat.categoria)}`;
-  tab.textContent = cat.categoria;
-  if (i === 0) tab.classList.add("active");
-  $("tabs").append(tab);
+    const id = `${g}-${slug(cat.categoria)}`;
+    const tab = document.createElement("a");
+    tab.href = `#${id}`;
+    tab.textContent = cat.categoria;
+    if (i === 0) tab.classList.add("active");
+    $("tabs").append(tab);
 
-  const sec = document.createElement("section");
-  sec.id = slug(cat.categoria);
-  sec.innerHTML = `<h2>${cat.categoria}</h2><div class="grid"></div>`;
-  cat.items.forEach((p) => {
-    const card = document.createElement("article");
-    card.className = p.formato ? `card ${p.formato}` : "card";
-    const foto = p.img
-      ? `<img src="${p.img}" alt="${p.nombre}" loading="lazy" onerror="this.replaceWith(document.createTextNode('🍪'))">`
-      : "🍪";
-    card.innerHTML = `
-      <div class="foto">${foto}</div>
-      <div class="body">
-        <h3>${p.nombre}</h3>
-        <p>${p.desc}</p>
-        ${p.opciones.map((o, idx) => `
-          <div class="row">
-            <span><span class="opcion">${o.nombre}</span> <span class="precio">${dinero(o.precio)}</span></span>
-            <span class="ctrl" data-key="${p.id}|${idx}"></span>
-          </div>`).join("")}
-      </div>`;
-    sec.querySelector(".grid").append(card);
+    const sec = document.createElement("section");
+    sec.id = id;
+    sec.innerHTML = `<h2>${esc(cat.categoria)}</h2><div class="grid"></div>`;
+    cat.items.forEach((p) => {
+      const card = document.createElement("article");
+      card.className = ["card", p.formato, p.disponible === false ? "agotado" : ""].filter(Boolean).join(" ");
+      const foto = p.img
+        ? `<img src="${esc(p.img)}" alt="${esc(p.nombre)}" loading="lazy" onerror="this.replaceWith(document.createTextNode('🍪'))">`
+        : "🍪";
+      card.innerHTML = `
+        <div class="foto">${foto}${p.disponible === false ? `<span class="sello">Agotado</span>` : ""}</div>
+        <div class="body">
+          <h3>${esc(p.nombre)}</h3>
+          <p>${esc(p.desc)}</p>
+          ${p.opciones.map((o, idx) => `
+            <div class="row">
+              <span><span class="opcion">${esc(o.nombre)}</span> <span class="precio">${dinero(o.precio)}</span></span>
+              <span class="ctrl" data-key="${esc(p.id)}|${idx}"></span>
+            </div>`).join("")}
+        </div>`;
+      sec.querySelector(".grid").append(card);
+    });
+    $("menu").append(sec);
   });
-  $("menu").append(sec);
-});
 
-// Resalta la pestaña de la sección visible
-const obs = new IntersectionObserver((entries) => {
-  entries.forEach((e) => {
-    if (!e.isIntersecting) return;
-    document.querySelectorAll(".tabs a").forEach((a) =>
-      a.classList.toggle("active", a.getAttribute("href") === `#${e.target.id}`));
-  });
-}, { rootMargin: "-40% 0px -55% 0px" });
-document.querySelectorAll("main section").forEach((s) => obs.observe(s));
+  // Resalta la pestaña de la sección visible
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach((e) => {
+      if (!e.isIntersecting) return;
+      document.querySelectorAll(".tabs a").forEach((a) =>
+        a.classList.toggle("active", a.getAttribute("href") === `#${e.target.id}`));
+    });
+  }, { rootMargin: "-40% 0px -55% 0px" });
+  document.querySelectorAll("main section").forEach((s) => obs.observe(s));
+}
 
 // ---------- Carrito ----------
 function cambiar(key, delta) {
@@ -86,6 +122,7 @@ function cambiar(key, delta) {
 }
 
 function controles(key) {
+  if (productos[key.split("|")[0]]?.disponible === false) return `<span class="agotado-txt">Agotado</span>`;
   const n = carrito[key] || 0;
   return n
     ? `<span class="qty"><button data-key="${key}" data-d="-1" aria-label="Quitar">−</button><b>${n}</b><button data-key="${key}" data-d="1" aria-label="Agregar">+</button></span>`
@@ -103,7 +140,7 @@ function render() {
   $("sheetTotal").textContent = dinero(total());
   $("cartList").innerHTML = Object.entries(carrito).map(([k, n]) => {
     const { p, o } = linea(k);
-    return `<li><span class="nm">${p.nombre}<small>${o.nombre} · ${dinero(o.precio)}</small></span>
+    return `<li><span class="nm">${esc(p.nombre)}<small>${esc(o.nombre)} · ${dinero(o.precio)}</small></span>
       ${controles(k)}<b>${dinero(o.precio * n)}</b></li>`;
   }).join("");
   if (piezas === 0) abrir(false);
@@ -151,4 +188,7 @@ $("orderForm").onsubmit = (e) => {
   window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`, "_blank");
 };
 
-render();
+cargarMenu().then(({ menu, temporada }) => {
+  pintarMenu(menu, temporada);
+  render();
+});

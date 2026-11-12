@@ -71,6 +71,13 @@ section h2 { font-size: 1.5rem; margin: 24px 0 12px; }
 .card .row { display: flex; align-items: center; justify-content: space-between; margin-top: 8px; }
 .precio { font-weight: 700; font-size: 1.1rem; color: var(--brand-dark); white-space: nowrap; }
 .opcion { font-size: .9rem; color: var(--muted); }
+.card.agotado img { filter: grayscale(1); opacity: .6; }
+.sello {
+  position: absolute; top: 12px; left: 12px; z-index: 1;
+  background: var(--ink); color: #fff; font-weight: 700; font-size: .85rem;
+  padding: 5px 12px; border-radius: 999px;
+}
+.agotado-txt { color: var(--muted); font-weight: 600; font-size: .9rem; }
 .card.ancho { grid-column: span 2; }
 .card.ancho .foto { aspect-ratio: 1138/826; background: #fff; }
 @media (max-width: 600px) { .card.ancho { grid-column: auto; } }

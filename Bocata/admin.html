@@ -1,0 +1,580 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Mi menú · Bocatta</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍪</text></svg>">
+  <meta name="theme-color" content="#bccce3">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f2f6fb; --card: #fff; --ink: #3a1614; --muted: #6e5c5b;
+      --brand: #8e2f2b; --brand-dark: #6c201d; --sky: #bccce3; --sky-soft: #dbe6f2;
+      --line: #d9e3ef; --verde: #2e9e5b; --rojo: #c0392b; --radio: 18px;
+      --sombra: 0 4px 14px rgba(60, 80, 110, .10);
+    }
+    * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+    body { margin: 0; background: var(--bg); color: var(--ink); font-family: "Inter", system-ui, sans-serif; }
+    h1, h2, h3 { font-family: "Fredoka", sans-serif; margin: 0; }
+    button, input, textarea, select { font: inherit; color: inherit; }
+
+    .btn { border: 0; border-radius: 999px; padding: 13px 18px; font-weight: 700; cursor: pointer; text-align: center; text-decoration: none; display: inline-block; }
+    .btn:disabled { opacity: .6; cursor: default; }
+    .btn-vino { background: var(--brand); color: #fff; }
+    .btn-vino:hover { background: var(--brand-dark); }
+    .btn-borde { background: #fff; color: var(--brand); border: 2px solid var(--brand); }
+    .btn-peligro { background: var(--rojo); color: #fff; }
+    .btn-grande { width: 100%; padding: 16px; font-size: 1.05rem; }
+
+    /* Entrada */
+    .login { min-height: 100vh; display: grid; place-items: center; padding: 24px 16px; background: var(--sky); }
+    .caja { background: #fff; border-radius: 24px; box-shadow: var(--sombra); padding: 28px 22px; width: 100%; max-width: 400px; }
+    .caja img { display: block; width: 220px; max-width: 80%; margin: 0 auto 6px; border-radius: 12px; }
+    .centro { text-align: center; }
+
+    .campo { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+    .campo label { font-weight: 700; font-size: .95rem; }
+    .ayuda { font-size: .85rem; color: var(--muted); font-weight: 400; }
+    .campo input, .campo textarea, .opcion-fila input {
+      width: 100%; padding: 13px 14px; border-radius: 14px; border: 1.5px solid var(--line);
+      background: #fff; font-size: 1.05rem; /* evita zoom en iPhone */ outline: none;
+    }
+    .campo input:focus, .campo textarea:focus, .opcion-fila input:focus { border-color: var(--brand); }
+    .campo textarea { min-height: 90px; resize: vertical; }
+    .error { background: #fbe9e7; color: var(--rojo); padding: 12px 14px; border-radius: 12px; font-weight: 600; margin-bottom: 14px; font-size: .95rem; }
+    .banner { background: #fff6d6; color: #7a5b00; padding: 12px 16px; border-radius: 14px; margin-bottom: 16px; font-weight: 600; font-size: .92rem; }
+
+    /* Panel */
+    .pantalla { max-width: 640px; margin: 0 auto; padding: 0 16px 120px; }
+    .cabecera { background: var(--sky); margin: 0 -16px 18px; padding: 18px 16px 16px; border-radius: 0 0 24px 24px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .cabecera img { height: 44px; border-radius: 6px; }
+    .cabecera small { display: block; color: var(--brand); font-weight: 600; }
+    .salir { background: none; border: 0; color: var(--brand); font-weight: 700; cursor: pointer; padding: 8px; text-decoration: underline; }
+
+    .tarjeta { background: #fff; border-radius: var(--radio); box-shadow: var(--sombra); padding: 16px; margin-bottom: 16px; }
+    .tarjeta h3 { font-size: 1.1rem; margin-bottom: 8px; }
+    .linea { display: flex; gap: 8px; }
+    .linea input { flex: 1; min-width: 0; padding: 12px 14px; border-radius: 14px; border: 1.5px solid var(--line); font-size: 1.05rem; }
+    .botones { display: flex; gap: 8px; flex-wrap: wrap; }
+    .botones .btn { flex: 1 1 140px; padding: 11px 14px; }
+
+    .resumen { display: flex; gap: 10px; margin-bottom: 14px; }
+    .resumen div { flex: 1; background: #fff; border-radius: 14px; padding: 10px; text-align: center; box-shadow: var(--sombra); }
+    .resumen b { display: block; font-size: 1.4rem; }
+    .resumen span { font-size: .82rem; color: var(--muted); }
+
+    .grupo-titulo { display: inline-block; margin: 18px 0 6px; padding: 4px 12px; border-radius: 999px; background: var(--brand); color: #fff; font-size: .8rem; font-weight: 700; }
+    .cat-titulo { font-size: 1.2rem; margin: 6px 0 8px; }
+    .fila { display: flex; gap: 10px; align-items: center; background: #fff; border-radius: var(--radio); padding: 10px; box-shadow: var(--sombra); margin-bottom: 10px; }
+    .mini { width: 64px; height: 64px; border-radius: 12px; overflow: hidden; flex: none; background: var(--sky-soft); display: grid; place-items: center; font-size: 1.6rem; }
+    .mini img { width: 100%; height: 100%; object-fit: cover; }
+    .fila.agotado .mini img { filter: grayscale(1); opacity: .55; }
+    .datos { flex: 1; min-width: 0; }
+    .datos b { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .datos small { display: block; color: var(--brand); font-weight: 700; font-size: .85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .estado { display: inline-block; font-size: .72rem; font-weight: 700; padding: 2px 8px; border-radius: 999px; margin-top: 3px; }
+    .estado.si { background: #e3f6ea; color: #157a3d; }
+    .estado.no { background: #eee; color: #666; }
+    .acciones { display: grid; grid-template-columns: repeat(2, 40px); gap: 4px; flex: none; }
+    .icono { width: 40px; height: 40px; border-radius: 12px; border: 0; background: var(--bg); font-size: 1.05rem; cursor: pointer; }
+    .icono:disabled { opacity: .3; cursor: default; }
+    .vacio { text-align: center; color: var(--muted); padding: 30px 10px; }
+    .vacio .emoji { font-size: 2.6rem; }
+
+    .flotante { position: fixed; left: 50%; bottom: 18px; transform: translateX(-50%); width: calc(100% - 32px); max-width: 608px; box-shadow: 0 10px 30px rgba(142, 47, 43, .4); z-index: 20; }
+
+    /* Ventana */
+    .modal-fondo { position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 40; display: none; align-items: flex-end; justify-content: center; }
+    .modal-fondo.abierto { display: flex; }
+    .modal { background: #fff; width: 100%; max-width: 560px; max-height: 92vh; overflow-y: auto; border-radius: 24px 24px 0 0; position: relative; }
+    @media (min-width: 640px) { .modal-fondo { align-items: center; } .modal { border-radius: 24px; } }
+    .cerrar { position: absolute; top: 12px; right: 12px; width: 38px; height: 38px; border-radius: 50%; border: 0; background: var(--bg); cursor: pointer; font-size: 1rem; z-index: 2; }
+    .form { padding: 22px 18px 24px; }
+    .form h2 { font-size: 1.5rem; margin-bottom: 16px; }
+
+    .elegir-foto { display: grid; place-items: center; text-align: center; aspect-ratio: 4 / 3; width: 100%; border: 2px dashed var(--brand); border-radius: var(--radio); background: var(--sky-soft); color: var(--brand); cursor: pointer; overflow: hidden; margin-bottom: 18px; position: relative; font-weight: 700; }
+    .elegir-foto .grande { font-size: 2.6rem; display: block; }
+    .elegir-foto img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; background: #fff; }
+    .elegir-foto .cambiar { position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); background: rgba(58,22,20,.8); color: #fff; padding: 7px 14px; border-radius: 999px; font-size: .9rem; }
+
+    .opcion-fila { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
+    .opcion-fila .nom { flex: 1.4; min-width: 0; }
+    .opcion-fila .pre { flex: 1; min-width: 0; position: relative; }
+    .opcion-fila .pre::before { content: "L"; position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-weight: 700; color: var(--muted); }
+    .opcion-fila .pre input { padding-left: 26px; }
+    .agregar-opcion { background: none; border: 0; color: var(--brand); font-weight: 700; cursor: pointer; padding: 6px 0; }
+
+    .interruptor { display: flex; align-items: center; justify-content: space-between; gap: 12px; background: var(--bg); border-radius: 14px; padding: 13px 15px; margin-bottom: 12px; cursor: pointer; }
+    .interruptor b { display: block; }
+    .interruptor small { color: var(--muted); }
+    .switch { position: relative; width: 54px; height: 32px; flex: none; }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .switch span { position: absolute; inset: 0; background: #ccc; border-radius: 999px; transition: .2s; }
+    .switch span::before { content: ""; position: absolute; width: 26px; height: 26px; left: 3px; top: 3px; background: #fff; border-radius: 50%; transition: .2s; box-shadow: 0 1px 4px rgba(0,0,0,.2); }
+    .switch input:checked + span { background: var(--verde); }
+    .switch input:checked + span::before { transform: translateX(22px); }
+
+    .botones-form { display: flex; gap: 10px; margin-top: 8px; }
+    .botones-form .btn { flex: 1; padding: 15px; }
+    .confirmar { padding: 28px 22px; text-align: center; }
+    .confirmar .emoji { font-size: 2.6rem; }
+    .confirmar h2 { margin: 8px 0 6px; font-size: 1.3rem; }
+    .confirmar p { color: var(--muted); margin: 0 0 20px; }
+
+    .aviso { position: fixed; left: 50%; bottom: 90px; transform: translateX(-50%) translateY(20px); background: var(--ink); color: #fff; padding: 12px 18px; border-radius: 999px; font-weight: 600; opacity: 0; pointer-events: none; transition: .25s; z-index: 60; max-width: calc(100% - 32px); text-align: center; }
+    .aviso.visible { opacity: 1; transform: translateX(-50%); }
+    .cargando { margin: 40px auto; width: 36px; height: 36px; border: 4px solid var(--line); border-top-color: var(--brand); border-radius: 50%; animation: gira 1s linear infinite; }
+    @keyframes gira { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+
+  <!-- ENTRADA -->
+  <section id="vistaLogin" class="login" hidden>
+    <form class="caja" id="formLogin">
+      <img src="img/logo.jpg" alt="Bocatta">
+      <p class="centro" style="color:var(--muted);margin:10px 0 22px">¡Hola Ana! 👋 Entra para cambiar tu menú.</p>
+      <div id="errorLogin" class="error" hidden></div>
+      <div class="campo">
+        <label for="correo">Tu correo</label>
+        <input id="correo" type="email" autocomplete="username" required inputmode="email" placeholder="tucorreo@gmail.com">
+      </div>
+      <div class="campo">
+        <label for="clave">Tu contraseña</label>
+        <input id="clave" type="password" autocomplete="current-password" required placeholder="Escribe tu contraseña">
+      </div>
+      <button class="btn btn-vino btn-grande" id="btnEntrar" type="submit">Entrar</button>
+    </form>
+  </section>
+
+  <!-- PANEL -->
+  <section id="vistaPanel" class="pantalla" hidden>
+    <div class="cabecera">
+      <div><img src="img/logo.jpg" alt="Bocatta"><small>Mi menú</small></div>
+      <button class="salir" id="btnSalir">Salir</button>
+    </div>
+
+    <div id="bannerDemo" class="banner" hidden>🧪 Modo prueba: todavía falta conectar la base de datos, así que los cambios no se guardan.</div>
+
+    <div class="tarjeta">
+      <h3>🔗 Link del menú para clientes</h3>
+      <div class="botones">
+        <button class="btn btn-vino" id="btnCompartir">📤 Compartir link</button>
+        <a class="btn btn-borde" href="./" target="_blank">👀 Ver menú</a>
+      </div>
+    </div>
+
+    <div class="tarjeta">
+      <h3>🎃 Nombre de la temporada</h3>
+      <p class="ayuda" style="margin:0 0 10px">Es el título que sale arriba de los productos de temporada. Ej: Halloween 🎃, Navidad 🎄</p>
+      <div class="linea">
+        <input id="temporada" maxlength="40" placeholder="Ej: Navidad 🎄">
+        <button class="btn btn-vino" id="btnTemporada" style="padding:11px 16px">Guardar</button>
+      </div>
+    </div>
+
+    <div class="resumen">
+      <div><b id="nTotal">0</b><span>productos</span></div>
+      <div><b id="nDisp">0</b><span>disponibles</span></div>
+      <div><b id="nAgot">0</b><span>agotados</span></div>
+    </div>
+    <p class="ayuda" style="margin:0 0 4px">✏️ editar · 🗑️ borrar · ⬆️⬇️ cambiar el orden en el menú</p>
+
+    <div id="lista"><div class="cargando"></div></div>
+
+    <button class="btn btn-vino btn-grande flotante" id="btnNuevo">➕ Agregar producto</button>
+  </section>
+
+  <div class="modal-fondo" id="modal" role="dialog" aria-modal="true">
+    <div class="modal" id="modalContenido"></div>
+  </div>
+  <div class="aviso" id="aviso"></div>
+
+  <script src="menu.js?v=10"></script>
+  <script src="config.js?v=1"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+  <script>
+    const S = window.SUPABASE || {};
+    const $ = (id) => document.getElementById(id);
+    const DEMO = !S.URL || !S.KEY;
+    const db = DEMO ? null : supabase.createClient(S.URL, S.KEY);
+    const BUCKET = "fotos";
+    let productos = [];
+
+    const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+    const dinero = (n) => `L ${Number(n || 0).toLocaleString("en-US", { maximumFractionDigits: 2 })}`;
+    const resumenPrecios = (p) => (p.opciones || []).map((o) => `${o.nombre} ${dinero(o.precio)}`).join(" · ");
+
+    function aviso(texto) {
+      const a = $("aviso");
+      a.textContent = texto;
+      a.classList.add("visible");
+      clearTimeout(a._t);
+      a._t = setTimeout(() => a.classList.remove("visible"), 2600);
+    }
+
+    function traducirError(e) {
+      const m = (e && (e.message || e.error_description || String(e))) || "";
+      if (/invalid login credentials/i.test(m)) return "El correo o la contraseña no coinciden. Revisa e intenta otra vez. 🙂";
+      if (/email not confirmed/i.test(m)) return "Tu correo todavía no está confirmado.";
+      if (/failed to fetch|network/i.test(m)) return "Parece que no hay internet. Revisa tu conexión.";
+      if (/payload too large|exceeded/i.test(m)) return "La foto es muy pesada. Prueba con otra.";
+      if (/jwt|row-level security|not authorized|permission/i.test(m)) return "Tu sesión se cerró. Vuelve a entrar, por favor.";
+      return "Algo salió mal 😕 Intenta de nuevo.";
+    }
+
+    // Orden en el que salen en el menú: temporada primero, luego el orden que Ana elige
+    const ordenados = () => productos.slice().sort((a, b) => (b.temporada - a.temporada) || (a.orden - b.orden) || (a.id - b.id));
+
+    // ---------- Compartir ----------
+    const linkMenu = new URL("./", location.href).href;
+    $("btnCompartir").onclick = async () => {
+      const datos = { title: "Bocatta", text: "🍪 Mira el menú de Bocatta y pide por WhatsApp:", url: linkMenu };
+      if (navigator.share) { try { await navigator.share(datos); } catch (_) {} return; }
+      try { await navigator.clipboard.writeText(linkMenu); aviso("✅ Link copiado. ¡Ya puedes pegarlo!"); }
+      catch (_) { prompt("Copia este link:", linkMenu); }
+    };
+
+    // ---------- Entrar / salir ----------
+    async function iniciar() {
+      if (DEMO) {
+        $("bannerDemo").hidden = false;
+        // En modo prueba se usan los productos de menu.js
+        let n = 0;
+        productos = MENU.flatMap((c) => c.items.map((it) => ({
+          id: ++n, nombre: it.nombre, descripcion: it.desc, categoria: c.categoria, temporada: !!c.temporada,
+          opciones: it.opciones, foto_url: it.img, foto_path: null, ancho: it.formato === "ancho", disponible: true, orden: n * 10,
+        })));
+        $("temporada").value = TEMPORADA;
+        mostrarPanel();
+        return;
+      }
+      const { data } = await db.auth.getSession();
+      if (data.session) mostrarPanel(); else mostrarLogin();
+    }
+
+    function mostrarLogin() { $("vistaPanel").hidden = true; $("vistaLogin").hidden = false; }
+    async function mostrarPanel() { $("vistaLogin").hidden = true; $("vistaPanel").hidden = false; await cargar(); }
+
+    $("formLogin").onsubmit = async (e) => {
+      e.preventDefault();
+      const btn = $("btnEntrar");
+      btn.disabled = true; btn.textContent = "Entrando…";
+      $("errorLogin").hidden = true;
+      const { error } = await db.auth.signInWithPassword({ email: $("correo").value.trim(), password: $("clave").value });
+      btn.disabled = false; btn.textContent = "Entrar";
+      if (error) { $("errorLogin").textContent = traducirError(error); $("errorLogin").hidden = false; return; }
+      mostrarPanel();
+    };
+
+    $("btnSalir").onclick = async () => {
+      if (DEMO) { aviso("En modo prueba no hay sesión"); return; }
+      await db.auth.signOut();
+      mostrarLogin();
+    };
+
+    // ---------- Temporada ----------
+    $("btnTemporada").onclick = async () => {
+      const valor = $("temporada").value.trim();
+      if (!valor) { aviso("Escribe un nombre para la temporada"); return; }
+      if (!DEMO) {
+        const { error } = await db.from("ajustes").update({ temporada: valor }).eq("id", 1);
+        if (error) { aviso(traducirError(error)); return; }
+      }
+      aviso("✅ Temporada guardada");
+    };
+
+    // ---------- Lista ----------
+    async function cargar() {
+      if (!DEMO) {
+        const [{ data, error }, { data: aj }] = await Promise.all([
+          db.from("productos").select("*"),
+          db.from("ajustes").select("temporada").eq("id", 1).maybeSingle(),
+        ]);
+        if (error) { $("lista").innerHTML = `<div class="vacio"><div class="emoji">😕</div><p>${traducirError(error)}</p></div>`; return; }
+        productos = data;
+        if (aj) $("temporada").value = aj.temporada;
+      }
+      pintar();
+    }
+
+    function pintar() {
+      $("nTotal").textContent = productos.length;
+      $("nDisp").textContent = productos.filter((p) => p.disponible).length;
+      $("nAgot").textContent = productos.filter((p) => !p.disponible).length;
+
+      if (!productos.length) {
+        $("lista").innerHTML = `<div class="vacio"><div class="emoji">🍪</div><p><b>Todavía no hay productos.</b><br>Toca el botón de abajo para agregar el primero.</p></div>`;
+        return;
+      }
+      const lista = ordenados();
+      let html = "", grupo = null, cat = null;
+      lista.forEach((p, i) => {
+        const g = p.temporada ? "De temporada" : "Lo de siempre";
+        if (g !== grupo) { grupo = g; cat = null; html += `<span class="grupo-titulo">${g}</span>`; }
+        if (p.categoria !== cat) { cat = p.categoria; html += `<h3 class="cat-titulo">${esc(cat || "Sin categoría")}</h3>`; }
+        const mismo = (q) => q && q.temporada === p.temporada && q.categoria === p.categoria;
+        html += `
+          <div class="fila ${p.disponible ? "" : "agotado"}">
+            <div class="mini">${p.foto_url ? `<img src="${esc(p.foto_url)}" alt="" loading="lazy">` : "🍪"}</div>
+            <div class="datos">
+              <b>${esc(p.nombre)}</b>
+              <small>${esc(resumenPrecios(p))}</small>
+              <span class="estado ${p.disponible ? "si" : "no"}">${p.disponible ? "Disponible" : "Agotado"}</span>
+            </div>
+            <div class="acciones">
+              <button class="icono" data-subir="${p.id}" aria-label="Subir" ${mismo(lista[i - 1]) ? "" : "disabled"}>⬆️</button>
+              <button class="icono" data-editar="${p.id}" aria-label="Editar">✏️</button>
+              <button class="icono" data-bajar="${p.id}" aria-label="Bajar" ${mismo(lista[i + 1]) ? "" : "disabled"}>⬇️</button>
+              <button class="icono" data-borrar="${p.id}" aria-label="Borrar">🗑️</button>
+            </div>
+          </div>`;
+      });
+      $("lista").innerHTML = html;
+      $("lista").querySelectorAll("[data-editar]").forEach((b) => b.onclick = () => abrirForm(b.dataset.editar));
+      $("lista").querySelectorAll("[data-borrar]").forEach((b) => b.onclick = () => confirmarBorrar(b.dataset.borrar));
+      $("lista").querySelectorAll("[data-subir]").forEach((b) => b.onclick = () => mover(b.dataset.subir, -1));
+      $("lista").querySelectorAll("[data-bajar]").forEach((b) => b.onclick = () => mover(b.dataset.bajar, 1));
+    }
+
+    // ---------- Cambiar el orden ----------
+    async function mover(id, paso) {
+      const lista = ordenados();
+      const i = lista.findIndex((x) => String(x.id) === String(id));
+      const j = i + paso;
+      if (j < 0 || j >= lista.length) return;
+      [lista[i], lista[j]] = [lista[j], lista[i]];
+      // Renumera todo de 10 en 10 y guarda solo los que cambiaron
+      const cambios = [];
+      lista.forEach((p, k) => { const o = (k + 1) * 10; if (p.orden !== o) { p.orden = o; cambios.push(p); } });
+      pintar();
+      if (DEMO) return;
+      const res = await Promise.all(cambios.map((p) => db.from("productos").update({ orden: p.orden }).eq("id", p.id)));
+      const err = res.find((r) => r.error);
+      if (err) { aviso(traducirError(err.error)); await cargar(); }
+    }
+
+    // ---------- Ventana ----------
+    function abrirModal(html) { $("modalContenido").innerHTML = html; $("modal").classList.add("abierto"); document.body.style.overflow = "hidden"; }
+    function cerrarModal() { $("modal").classList.remove("abierto"); document.body.style.overflow = ""; }
+    $("modal").onclick = (e) => { if (e.target.id === "modal") cerrarModal(); };
+
+    // Las fotos del cel pesan mucho: se achican antes de subir
+    async function achicarFoto(archivo, max = 1400) {
+      const img = await createImageBitmap(archivo);
+      const escala = Math.min(1, max / Math.max(img.width, img.height));
+      const c = document.createElement("canvas");
+      c.width = Math.round(img.width * escala);
+      c.height = Math.round(img.height * escala);
+      c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+      return await new Promise((ok) => c.toBlob(ok, "image/jpeg", 0.85));
+    }
+
+    // ---------- Agregar / editar ----------
+    $("btnNuevo").onclick = () => abrirForm(null);
+
+    function abrirForm(id) {
+      const p = id ? productos.find((x) => String(x.id) === String(id)) : null;
+      const cats = [...new Set(productos.map((x) => (x.categoria || "").trim()).filter(Boolean))];
+      let opciones = p ? p.opciones.map((o) => ({ ...o })) : [{ nombre: "Media docena", precio: "" }, { nombre: "Docena", precio: "" }];
+      let foto = p?.foto_url ? { url: p.foto_url, path: p.foto_path } : null; // { url, path } o { url, file }
+
+      abrirModal(`
+        <button class="cerrar" aria-label="Cerrar">✕</button>
+        <form class="form" id="formProducto">
+          <h2>${p ? "Editar producto" : "Nuevo producto"}</h2>
+
+          <input type="file" id="foto" accept="image/*" hidden>
+          <label class="elegir-foto" for="foto" id="zonaFoto"></label>
+
+          <div class="campo">
+            <label for="nombre">Nombre</label>
+            <input id="nombre" required maxlength="60" placeholder="Ej: Galleta de jengibre" value="${esc(p?.nombre)}">
+          </div>
+
+          <div class="campo">
+            <label for="descripcion">Descripción <span class="ayuda">(opcional)</span></label>
+            <textarea id="descripcion" maxlength="400" placeholder="Ej: Suavecita, con canela y glasé blanco.">${esc(p?.descripcion)}</textarea>
+          </div>
+
+          <div class="campo">
+            <label for="categoria">Categoría <span class="ayuda">(ej: Cookies, Brownies, Boxes)</span></label>
+            <input id="categoria" list="listaCats" required maxlength="30" placeholder="Ej: Cookies" value="${esc(p?.categoria)}">
+            <datalist id="listaCats">${cats.map((c) => `<option value="${esc(c)}">`).join("")}</datalist>
+          </div>
+
+          <div class="campo" style="margin-bottom:8px">
+            <label>Tamaños y precios <span class="ayuda">(los botones que ve el cliente)</span></label>
+          </div>
+          <div id="opciones"></div>
+          <button type="button" class="agregar-opcion" id="btnOpcion">➕ Agregar otro tamaño</button>
+
+          <div style="height:14px"></div>
+          <label class="interruptor">
+            <div><b>¿Es de temporada?</b><small>Sale arriba, bajo el título de la temporada</small></div>
+            <div class="switch"><input type="checkbox" id="esTemporada" ${!p || p.temporada ? "checked" : ""}><span></span></div>
+          </label>
+          <label class="interruptor">
+            <div><b>¿Está disponible?</b><small>Apágalo cuando se agote</small></div>
+            <div class="switch"><input type="checkbox" id="disponible" ${!p || p.disponible ? "checked" : ""}><span></span></div>
+          </label>
+          <label class="interruptor">
+            <div><b>Foto horizontal</b><small>Para fotos anchas, como la de Boxes</small></div>
+            <div class="switch"><input type="checkbox" id="ancho" ${p?.ancho ? "checked" : ""}><span></span></div>
+          </label>
+
+          <div id="errorForm" class="error" hidden></div>
+          <div class="botones-form">
+            <button type="button" class="btn btn-borde" id="btnCancelar">Cancelar</button>
+            <button type="submit" class="btn btn-vino" id="btnGuardar">💾 Guardar</button>
+          </div>
+        </form>`);
+
+      $("modalContenido").querySelector(".cerrar").onclick = cerrarModal;
+      $("btnCancelar").onclick = cerrarModal;
+
+      function pintarFoto() {
+        $("zonaFoto").innerHTML = foto
+          ? `<img src="${esc(foto.url)}" alt=""><span class="cambiar">📷 Cambiar foto</span>`
+          : `<div><span class="grande">📷</span>Toca aquí para poner la foto</div>`;
+      }
+      pintarFoto();
+      $("foto").onchange = () => {
+        const f = $("foto").files[0];
+        $("foto").value = "";
+        if (!f) return;
+        foto = { url: URL.createObjectURL(f), file: f };
+        pintarFoto();
+      };
+
+      // Lee lo que hay escrito en los tamaños antes de repintarlos
+      function leerOpciones() {
+        opciones = [...$("opciones").querySelectorAll(".opcion-fila")].map((fila) => ({
+          nombre: fila.querySelector(".nom input").value,
+          precio: fila.querySelector(".pre input").value,
+        }));
+      }
+      function pintarOpciones() {
+        $("opciones").innerHTML = opciones.map((o, i) => `
+          <div class="opcion-fila">
+            <div class="nom"><input placeholder="Ej: Docena" maxlength="40" value="${esc(o.nombre)}"></div>
+            <div class="pre"><input type="number" inputmode="decimal" min="0" step="0.01" placeholder="0" value="${esc(o.precio)}"></div>
+            <button type="button" class="icono" data-quitar="${i}" aria-label="Quitar tamaño" ${opciones.length === 1 ? "disabled" : ""}>✕</button>
+          </div>`).join("");
+        $("opciones").querySelectorAll("[data-quitar]").forEach((b) => b.onclick = () => {
+          leerOpciones(); opciones.splice(Number(b.dataset.quitar), 1); pintarOpciones();
+        });
+      }
+      pintarOpciones();
+      $("btnOpcion").onclick = () => { leerOpciones(); opciones.push({ nombre: "", precio: "" }); pintarOpciones(); };
+
+      $("formProducto").onsubmit = async (e) => {
+        e.preventDefault();
+        const btn = $("btnGuardar");
+        const fallo = (texto) => { $("errorForm").textContent = texto; $("errorForm").hidden = false; };
+        $("errorForm").hidden = true;
+
+        leerOpciones();
+        const limpias = opciones
+          .map((o) => ({ nombre: o.nombre.trim(), precio: Number(o.precio) }))
+          .filter((o) => o.nombre || o.precio);
+        if (!limpias.length) return fallo("💰 Pon al menos un tamaño con su precio.");
+        if (limpias.some((o) => !o.nombre || !(o.precio > 0))) return fallo("💰 A cada tamaño ponle nombre y precio.");
+        if (!foto) { $("zonaFoto").scrollIntoView({ behavior: "smooth", block: "center" }); return fallo("📷 Falta la foto. Toca el cuadro de arriba para ponerla."); }
+
+        const datos = {
+          nombre: $("nombre").value.trim(),
+          descripcion: $("descripcion").value.trim(),
+          categoria: $("categoria").value.trim(),
+          opciones: limpias,
+          temporada: $("esTemporada").checked,
+          disponible: $("disponible").checked,
+          ancho: $("ancho").checked,
+        };
+        if (!p) datos.orden = Math.max(0, ...productos.map((x) => x.orden || 0)) + 10;
+
+        btn.disabled = true;
+        let subida = null;
+        try {
+          if (foto.file) {
+            btn.textContent = "Subiendo foto…";
+            if (DEMO) { datos.foto_url = foto.url; datos.foto_path = null; }
+            else {
+              const blob = await achicarFoto(foto.file);
+              const ruta = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.jpg`;
+              const { error } = await db.storage.from(BUCKET).upload(ruta, blob, { contentType: "image/jpeg", cacheControl: "31536000" });
+              if (error) throw error;
+              subida = ruta;
+              datos.foto_url = db.storage.from(BUCKET).getPublicUrl(ruta).data.publicUrl;
+              datos.foto_path = ruta;
+            }
+          }
+          btn.textContent = "Guardando…";
+          if (DEMO) {
+            if (p) Object.assign(p, datos); else productos.push({ id: Date.now(), ...datos });
+          } else {
+            const { error } = p
+              ? await db.from("productos").update(datos).eq("id", p.id)
+              : await db.from("productos").insert(datos);
+            if (error) throw error;
+            // Si se cambió la foto, borra la vieja del almacenamiento
+            if (p && subida && p.foto_path) db.storage.from(BUCKET).remove([p.foto_path]);
+            await cargar();
+          }
+          cerrarModal();
+          pintar();
+          aviso(p ? "✅ ¡Cambios guardados!" : "🎉 ¡Producto agregado!");
+        } catch (err) {
+          console.error(err);
+          if (subida && db) db.storage.from(BUCKET).remove([subida]);
+          fallo(traducirError(err));
+          btn.disabled = false;
+          btn.textContent = "💾 Guardar";
+        }
+      };
+    }
+
+    // ---------- Borrar ----------
+    function confirmarBorrar(id) {
+      const p = productos.find((x) => String(x.id) === String(id));
+      if (!p) return;
+      abrirModal(`
+        <div class="confirmar">
+          <div class="emoji">🗑️</div>
+          <h2>¿Borrar "${esc(p.nombre)}"?</h2>
+          <p>Ya no saldrá en el menú. Si solo se agotó, mejor edítalo y apaga "¿Está disponible?".</p>
+          <div class="botones-form">
+            <button class="btn btn-borde" id="noBorrar">No, dejarlo</button>
+            <button class="btn btn-peligro" id="siBorrar">Sí, borrar</button>
+          </div>
+        </div>`);
+      $("noBorrar").onclick = cerrarModal;
+      $("siBorrar").onclick = async () => {
+        $("siBorrar").disabled = true;
+        try {
+          if (DEMO) productos = productos.filter((x) => x !== p);
+          else {
+            const { error } = await db.from("productos").delete().eq("id", p.id);
+            if (error) throw error;
+            if (p.foto_path) db.storage.from(BUCKET).remove([p.foto_path]);
+            await cargar();
+          }
+          cerrarModal();
+          pintar();
+          aviso("Producto borrado");
+        } catch (err) {
+          cerrarModal();
+          aviso(traducirError(err));
+        }
+      };
+    }
+
+    if (db) db.auth.onAuthStateChange((evento) => { if (evento === "SIGNED_OUT") mostrarLogin(); });
+    iniciar();
+  </script>
+</body>
+</html>
