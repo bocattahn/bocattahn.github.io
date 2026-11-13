@@ -162,9 +162,11 @@ document.addEventListener("click", (e) => {
 
 // ---------- Packs: el cliente elige qué postres lleva ----------
 // p.elegir = [{ categoria: "Cookies", cantidad: 1 }, ...]; categoria "*" = cualquier postre
-function opcionesDe(categoria) {
+// ("cualquier postre" no incluye la categoría del propio pack: ni kits ni boxes)
+function opcionesDe(categoria, propia) {
   return Object.values(productos).filter((x) =>
-    x.disponible !== false && !x.elegir?.length && (categoria === "*" || x.categoria === categoria));
+    x.disponible !== false && !x.elegir?.length &&
+    (categoria === "*" ? x.categoria !== propia : x.categoria === categoria));
 }
 
 let contadorPacks = 0;
@@ -173,7 +175,7 @@ function abrirElegir(keyBase) {
   const p = productos[id];
   const filas = [];
   p.elegir.forEach((r) => {
-    const lista = opcionesDe(r.categoria);
+    const lista = opcionesDe(r.categoria, p.categoria);
     const etiqueta = r.categoria === "*" ? "Postre" : r.categoria;
     for (let n = 1; n <= r.cantidad; n++) {
       filas.push(`<label>${esc(etiqueta)}${r.cantidad > 1 ? ` ${n}` : ""}
