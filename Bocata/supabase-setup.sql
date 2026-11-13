@@ -17,6 +17,8 @@ create table if not exists public.productos (
   ancho       boolean not null default false,     -- foto horizontal (tarjeta ancha)
   disponible  boolean not null default true,
   orden       integer not null default 0,
+  archivado   boolean not null default false,     -- true = oculto del menú sin borrarlo
+  elegir      jsonb not null default '[]'::jsonb, -- packs: [{"categoria":"Cookies","cantidad":1}], "*" = cualquiera
   creado      timestamptz not null default now()
 );
 

@@ -78,6 +78,13 @@ section h2 { font-size: 1.5rem; margin: 24px 0 12px; }
   padding: 5px 12px; border-radius: 999px;
 }
 .agotado-txt { color: var(--muted); font-weight: 600; font-size: .9rem; }
+
+/* Ventana para elegir lo que lleva un pack */
+.elegir-fondo { position: fixed; inset: 0; z-index: 50; background: rgba(0,0,0,.45); display: flex; align-items: flex-end; justify-content: center; }
+.elegir-caja { background: var(--card); width: 100%; max-width: 560px; max-height: 90vh; overflow-y: auto; border-radius: 24px 24px 0 0; padding: 20px 16px 24px; }
+@media (min-width: 640px) { .elegir-fondo { align-items: center; } .elegir-caja { border-radius: 24px; } }
+.elegir-ayuda { color: var(--muted); margin: 6px 0 4px; }
+.cart-list small.eleccion { color: var(--brand); }
 .card.ancho { grid-column: span 2; }
 .card.ancho .foto { aspect-ratio: 1138/826; background: #fff; }
 @media (max-width: 600px) { .card.ancho { grid-column: auto; } }

@@ -1,12 +1,13 @@
 const $ = (id) => document.getElementById(id);
 const dinero = (n) => `${NEGOCIO.moneda} ${Number(n).toLocaleString("en-US", { maximumFractionDigits: 2 })}`;
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
-const carrito = {}; // "id|opción" -> cantidad
-let productos = {};  // id -> producto
+const carrito = {};  // "id|opción" o "id|opción|n" (packs armados) -> cantidad
+const elegidos = {}; // "id|opción|n" -> ["Golden Cookie", ...] lo que el cliente eligió para el pack
+let productos = {};   // id -> producto
 const linea = (key) => {
   const [id, i] = key.split("|");
   const p = productos[id], o = p.opciones[i];
-  return { p, o, nombre: `${p.nombre} (${o.nombre})` };
+  return { p, o, nombre: `${p.nombre} (${o.nombre})`, eleccion: elegidos[key] };
 };
 
 // ---------- Encabezado y redes ----------
@@ -28,7 +29,8 @@ async function cargarMenu() {
   try {
     const db = supabase.createClient(S.URL, S.KEY);
     const [{ data: filas, error }, { data: ajustes }] = await Promise.all([
-      db.from("productos").select("*").order("orden").order("id"),
+      // Lo archivado (temporadas pasadas) no se muestra
+      db.from("productos").select("*").eq("archivado", false).order("orden").order("id"),
       db.from("ajustes").select("temporada").eq("id", 1).maybeSingle(),
     ]);
     if (error) throw error;
@@ -43,6 +45,7 @@ async function cargarMenu() {
         cats.get(clave).items.push({
           id: String(f.id), nombre: f.nombre, desc: f.descripcion, opciones: f.opciones || [],
           img: f.foto_url || "", formato: f.ancho ? "ancho" : "", disponible: f.disponible,
+          categoria: f.categoria || "Otros", elegir: f.elegir || [],
         });
       });
     return { menu: [...cats.values()], temporada: ajustes?.temporada || TEMPORADA };
@@ -121,8 +124,11 @@ function cambiar(key, delta) {
   render();
 }
 
-function controles(key) {
-  if (productos[key.split("|")[0]]?.disponible === false) return `<span class="agotado-txt">Agotado</span>`;
+function controles(key, enTarjeta) {
+  const p = productos[key.split("|")[0]];
+  if (p?.disponible === false) return `<span class="agotado-txt">Agotado</span>`;
+  // Packs donde el cliente elige: en la tarjeta siempre "Elegir" (cada combinación es una línea aparte)
+  if (enTarjeta && p?.elegir?.length) return `<button class="add" data-elegir="${key}">Elegir</button>`;
   const n = carrito[key] || 0;
   return n
     ? `<span class="qty"><button data-key="${key}" data-d="-1" aria-label="Quitar">−</button><b>${n}</b><button data-key="${key}" data-d="1" aria-label="Agregar">+</button></span>`
@@ -132,15 +138,16 @@ function controles(key) {
 function total() { return Object.entries(carrito).reduce((s, [k, n]) => s + linea(k).o.precio * n, 0); }
 
 function render() {
-  document.querySelectorAll(".ctrl").forEach((el) => (el.innerHTML = controles(el.dataset.key)));
+  document.querySelectorAll(".ctrl").forEach((el) => (el.innerHTML = controles(el.dataset.key, true)));
   const piezas = Object.values(carrito).reduce((a, b) => a + b, 0);
   $("cartBtn").hidden = piezas === 0;
   $("cartCount").textContent = `${piezas} ${piezas === 1 ? "producto" : "productos"}`;
   $("cartTotal").textContent = dinero(total());
   $("sheetTotal").textContent = dinero(total());
   $("cartList").innerHTML = Object.entries(carrito).map(([k, n]) => {
-    const { p, o } = linea(k);
-    return `<li><span class="nm">${esc(p.nombre)}<small>${esc(o.nombre)} · ${dinero(o.precio)}</small></span>
+    const { p, o, eleccion } = linea(k);
+    return `<li><span class="nm">${esc(p.nombre)}<small>${esc(o.nombre)} · ${dinero(o.precio)}</small>
+      ${eleccion ? `<small class="eleccion">${esc(eleccion.join(", "))}</small>` : ""}</span>
       ${controles(k)}<b>${dinero(o.precio * n)}</b></li>`;
   }).join("");
   if (piezas === 0) abrir(false);
@@ -149,7 +156,55 @@ function render() {
 document.addEventListener("click", (e) => {
   const b = e.target.closest("button[data-key]");
   if (b) cambiar(b.dataset.key, Number(b.dataset.d));
+  const el = e.target.closest("button[data-elegir]");
+  if (el) abrirElegir(el.dataset.elegir);
 });
+
+// ---------- Packs: el cliente elige qué postres lleva ----------
+// p.elegir = [{ categoria: "Cookies", cantidad: 1 }, ...]; categoria "*" = cualquier postre
+function opcionesDe(categoria) {
+  return Object.values(productos).filter((x) =>
+    x.disponible !== false && !x.elegir?.length && (categoria === "*" || x.categoria === categoria));
+}
+
+let contadorPacks = 0;
+function abrirElegir(keyBase) {
+  const [id] = keyBase.split("|");
+  const p = productos[id];
+  const filas = [];
+  p.elegir.forEach((r) => {
+    const lista = opcionesDe(r.categoria);
+    const etiqueta = r.categoria === "*" ? "Postre" : r.categoria;
+    for (let n = 1; n <= r.cantidad; n++) {
+      filas.push(`<label>${esc(etiqueta)}${r.cantidad > 1 ? ` ${n}` : ""}
+        <select required>
+          <option value="">Elige…</option>
+          ${lista.map((x) => `<option>${esc(x.nombre)}</option>`).join("")}
+        </select></label>`);
+    }
+  });
+  const v = document.createElement("div");
+  v.className = "elegir-fondo";
+  v.innerHTML = `
+    <form class="elegir-caja">
+      <div class="sheet-head"><h2>${esc(p.nombre)}</h2><button type="button" class="close" aria-label="Cerrar">✕</button></div>
+      <p class="elegir-ayuda">Elige qué postres quieres en tu ${esc(p.nombre)}:</p>
+      ${filas.join("")}
+      <button type="submit" class="wa-btn" style="background:var(--brand);margin-top:16px">Agregar al pedido</button>
+    </form>`;
+  document.body.append(v);
+  const cerrar = () => v.remove();
+  v.querySelector(".close").onclick = cerrar;
+  v.onclick = (e) => { if (e.target === v) cerrar(); };
+  v.querySelector("form").onsubmit = (e) => {
+    e.preventDefault();
+    const eleccion = [...v.querySelectorAll("select")].map((s) => s.value);
+    const key = `${keyBase}|${++contadorPacks}`;
+    elegidos[key] = eleccion;
+    cambiar(key, 1);
+    cerrar();
+  };
+}
 
 function abrir(si) {
   $("sheet").classList.toggle("open", si);
@@ -170,8 +225,10 @@ $("entrega").onchange = (e) => {
 $("orderForm").onsubmit = (e) => {
   e.preventDefault();
   const f = new FormData(e.target);
-  const lineas = Object.entries(carrito).map(([k, n]) =>
-    `- ${n} x ${linea(k).nombre} — ${dinero(linea(k).o.precio * n)}`);
+  const lineas = Object.entries(carrito).map(([k, n]) => {
+    const l = linea(k);
+    return `- ${n} x ${l.nombre} — ${dinero(l.o.precio * n)}` + (l.eleccion ? `\n   Lleva: ${l.eleccion.join(", ")}` : "");
+  });
   const msg = [
     // Sin emojis: WhatsApp en PC a veces los muestra como un cuadro con "?"
     `¡Hola ${NEGOCIO.nombre}! Quiero hacer este pedido:`,

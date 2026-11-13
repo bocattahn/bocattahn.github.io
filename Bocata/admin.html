@@ -1,4 +1,4 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="es">
 <head>
   <meta charset="utf-8">
@@ -79,7 +79,16 @@
     .estado { display: inline-block; font-size: .72rem; font-weight: 700; padding: 2px 8px; border-radius: 999px; margin-top: 3px; }
     .estado.si { background: #e3f6ea; color: #157a3d; }
     .estado.no { background: #eee; color: #666; }
-    .acciones { display: grid; grid-template-columns: repeat(2, 40px); gap: 4px; flex: none; }
+    .acciones { display: grid; grid-template-columns: repeat(3, 40px); gap: 4px; flex: none; }
+    .archivo { margin-top: 26px; }
+    .archivo summary { cursor: pointer; font-family: "Fredoka", sans-serif; font-size: 1.15rem; padding: 12px 14px; background: #fff; border-radius: var(--radio); box-shadow: var(--sombra); list-style: none; }
+    .archivo summary::-webkit-details-marker { display: none; }
+    .archivo .fila { opacity: .75; }
+    .restaurar { border: 0; border-radius: 999px; background: var(--sky-soft); color: var(--brand); font-weight: 700; padding: 9px 12px; cursor: pointer; flex: none; }
+    .elegir-fila { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
+    .elegir-fila input { width: 70px; flex: none; }
+    .elegir-fila select { flex: 1; min-width: 0; }
+    .elegir-fila input, .elegir-fila select { padding: 12px; border-radius: 14px; border: 1.5px solid var(--line); background: #fff; font-size: 1.05rem; }
     .icono { width: 40px; height: 40px; border-radius: 12px; border: 0; background: var(--bg); font-size: 1.05rem; cursor: pointer; }
     .icono:disabled { opacity: .3; cursor: default; }
     .vacio { text-align: center; color: var(--muted); padding: 30px 10px; }
@@ -182,7 +191,7 @@
       <div><b id="nDisp">0</b><span>disponibles</span></div>
       <div><b id="nAgot">0</b><span>agotados</span></div>
     </div>
-    <p class="ayuda" style="margin:0 0 4px">✏️ editar · 🗑️ borrar · ⬆️⬇️ cambiar el orden en el menú</p>
+    <p class="ayuda" style="margin:0 0 4px">✏️ editar · 📦 archivar (se oculta sin borrarse) · 🗑️ borrar · ⬆️⬇️ cambiar el orden</p>
 
     <div id="lista"><div class="cargando"></div></div>
 
@@ -228,7 +237,8 @@
     }
 
     // Orden en el que salen en el menú: temporada primero, luego el orden que Ana elige
-    const ordenados = () => productos.slice().sort((a, b) => (b.temporada - a.temporada) || (a.orden - b.orden) || (a.id - b.id));
+    const activos = () => productos.filter((p) => !p.archivado);
+    const ordenados = () => activos().sort((a, b) => (b.temporada - a.temporada) || (a.orden - b.orden) || (a.id - b.id));
 
     // ---------- Compartir ----------
     const linkMenu = new URL("./", location.href).href;
@@ -248,6 +258,7 @@
         productos = MENU.flatMap((c) => c.items.map((it) => ({
           id: ++n, nombre: it.nombre, descripcion: it.desc, categoria: c.categoria, temporada: !!c.temporada,
           opciones: it.opciones, foto_url: it.img, foto_path: null, ancho: it.formato === "ancho", disponible: true, orden: n * 10,
+          archivado: false, elegir: [],
         })));
         $("temporada").value = TEMPORADA;
         mostrarPanel();
@@ -303,16 +314,14 @@
     }
 
     function pintar() {
-      $("nTotal").textContent = productos.length;
-      $("nDisp").textContent = productos.filter((p) => p.disponible).length;
-      $("nAgot").textContent = productos.filter((p) => !p.disponible).length;
+      $("nTotal").textContent = activos().length;
+      $("nDisp").textContent = activos().filter((p) => p.disponible).length;
+      $("nAgot").textContent = activos().filter((p) => !p.disponible).length;
 
-      if (!productos.length) {
-        $("lista").innerHTML = `<div class="vacio"><div class="emoji">🍪</div><p><b>Todavía no hay productos.</b><br>Toca el botón de abajo para agregar el primero.</p></div>`;
-        return;
-      }
       const lista = ordenados();
-      let html = "", grupo = null, cat = null;
+      const archivados = productos.filter((p) => p.archivado).sort((a, b) => a.orden - b.orden);
+      let html = lista.length ? "" : `<div class="vacio"><div class="emoji">🍪</div><p><b>No hay productos en el menú.</b><br>Agrega uno con el botón de abajo, o restaura uno del archivo.</p></div>`;
+      let grupo = null, cat = null;
       lista.forEach((p, i) => {
         const g = p.temporada ? "De temporada" : "Lo de siempre";
         if (g !== grupo) { grupo = g; cat = null; html += `<span class="grupo-titulo">${g}</span>`; }
@@ -329,16 +338,41 @@
             <div class="acciones">
               <button class="icono" data-subir="${p.id}" aria-label="Subir" ${mismo(lista[i - 1]) ? "" : "disabled"}>⬆️</button>
               <button class="icono" data-editar="${p.id}" aria-label="Editar">✏️</button>
+              <button class="icono" data-archivar="${p.id}" aria-label="Archivar">📦</button>
               <button class="icono" data-bajar="${p.id}" aria-label="Bajar" ${mismo(lista[i + 1]) ? "" : "disabled"}>⬇️</button>
               <button class="icono" data-borrar="${p.id}" aria-label="Borrar">🗑️</button>
             </div>
           </div>`;
       });
+      if (archivados.length) {
+        html += `<details class="archivo"><summary>📦 Archivo (${archivados.length}) <span class="ayuda">— no se ven en el menú</span></summary><div style="margin-top:10px">` +
+          archivados.map((p) => `
+            <div class="fila">
+              <div class="mini">${p.foto_url ? `<img src="${esc(p.foto_url)}" alt="" loading="lazy">` : "🍪"}</div>
+              <div class="datos"><b>${esc(p.nombre)}</b><small>${esc(p.categoria)}</small></div>
+              <button class="restaurar" data-restaurar="${p.id}">↩️ Volver al menú</button>
+            </div>`).join("") + `</div></details>`;
+      }
       $("lista").innerHTML = html;
       $("lista").querySelectorAll("[data-editar]").forEach((b) => b.onclick = () => abrirForm(b.dataset.editar));
       $("lista").querySelectorAll("[data-borrar]").forEach((b) => b.onclick = () => confirmarBorrar(b.dataset.borrar));
+      $("lista").querySelectorAll("[data-archivar]").forEach((b) => b.onclick = () => archivar(b.dataset.archivar, true));
+      $("lista").querySelectorAll("[data-restaurar]").forEach((b) => b.onclick = () => archivar(b.dataset.restaurar, false));
       $("lista").querySelectorAll("[data-subir]").forEach((b) => b.onclick = () => mover(b.dataset.subir, -1));
       $("lista").querySelectorAll("[data-bajar]").forEach((b) => b.onclick = () => mover(b.dataset.bajar, 1));
+    }
+
+    // ---------- Archivar / volver al menú (no borra nada) ----------
+    async function archivar(id, si) {
+      const p = productos.find((x) => String(x.id) === String(id));
+      if (!p) return;
+      p.archivado = si;
+      if (!si) p.orden = Math.max(0, ...activos().map((x) => x.orden || 0)) + 10; // vuelve al final de su sección
+      pintar();
+      aviso(si ? `📦 "${p.nombre}" archivado` : `↩️ "${p.nombre}" volvió al menú`);
+      if (DEMO) return;
+      const { error } = await db.from("productos").update({ archivado: si, orden: p.orden }).eq("id", p.id);
+      if (error) { aviso(traducirError(error)); await cargar(); }
     }
 
     // ---------- Cambiar el orden ----------
@@ -413,6 +447,12 @@
           <div id="opciones"></div>
           <button type="button" class="agregar-opcion" id="btnOpcion">➕ Agregar otro tamaño</button>
 
+          <div class="campo" style="margin:16px 0 8px">
+            <label>¿El cliente elige qué lleva? <span class="ayuda">(para packs: ej. 1 de Cookies, 1 de Brownies, 1 de Rice Crispy)</span></label>
+          </div>
+          <div id="elegir"></div>
+          <button type="button" class="agregar-opcion" id="btnElegir">➕ Agregar lo que elige</button>
+
           <div style="height:14px"></div>
           <label class="interruptor">
             <div><b>¿Es de temporada?</b><small>Sale arriba, bajo el título de la temporada</small></div>
@@ -472,6 +512,29 @@
       pintarOpciones();
       $("btnOpcion").onclick = () => { leerOpciones(); opciones.push({ nombre: "", precio: "" }); pintarOpciones(); };
 
+      // Lo que elige el cliente: [{ categoria, cantidad }]; "*" = cualquier postre
+      let elegir = (p?.elegir || []).map((r) => ({ ...r }));
+      function leerElegir() {
+        elegir = [...$("elegir").querySelectorAll(".elegir-fila")].map((f) => ({
+          cantidad: Number(f.querySelector("input").value) || 1,
+          categoria: f.querySelector("select").value,
+        }));
+      }
+      function pintarElegir() {
+        const opcionesCat = [["*", "Cualquier postre"], ...cats.map((c) => [c, c])];
+        $("elegir").innerHTML = elegir.map((r, i) => `
+          <div class="elegir-fila">
+            <input type="number" min="1" max="20" inputmode="numeric" value="${esc(r.cantidad)}" aria-label="Cuántos">
+            <select aria-label="De qué categoría">${opcionesCat.map(([v, t]) => `<option value="${esc(v)}" ${v === r.categoria ? "selected" : ""}>de ${esc(t)}</option>`).join("")}</select>
+            <button type="button" class="icono" data-quitar-eleccion="${i}" aria-label="Quitar">✕</button>
+          </div>`).join("");
+        $("elegir").querySelectorAll("[data-quitar-eleccion]").forEach((b) => b.onclick = () => {
+          leerElegir(); elegir.splice(Number(b.dataset.quitarEleccion), 1); pintarElegir();
+        });
+      }
+      pintarElegir();
+      $("btnElegir").onclick = () => { leerElegir(); elegir.push({ cantidad: 1, categoria: cats[0] || "*" }); pintarElegir(); };
+
       $("formProducto").onsubmit = async (e) => {
         e.preventDefault();
         const btn = $("btnGuardar");
@@ -479,6 +542,7 @@
         $("errorForm").hidden = true;
 
         leerOpciones();
+        leerElegir();
         const limpias = opciones
           .map((o) => ({ nombre: o.nombre.trim(), precio: Number(o.precio) }))
           .filter((o) => o.nombre || o.precio);
@@ -491,11 +555,12 @@
           descripcion: $("descripcion").value.trim(),
           categoria: $("categoria").value.trim(),
           opciones: limpias,
+          elegir,
           temporada: $("esTemporada").checked,
           disponible: $("disponible").checked,
           ancho: $("ancho").checked,
         };
-        if (!p) datos.orden = Math.max(0, ...productos.map((x) => x.orden || 0)) + 10;
+        if (!p) { datos.orden = Math.max(0, ...productos.map((x) => x.orden || 0)) + 10; datos.archivado = false; }
 
         btn.disabled = true;
         let subida = null;
